@@ -1,0 +1,6 @@
+/* Карточка — учебный файл. */
+.card {
+  background: var(--bg-surface-main);
+  padding: 16px;
+  gap: 8px;
+}

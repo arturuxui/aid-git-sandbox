@@ -1,0 +1,37 @@
+name: checks
+
+# Учебные проверки: падают на тех же ошибках, что и настоящие.
+#   Цвета        — в .css нет HEX-цветов: только var(--...), как в AID
+#   Конфликты    — ни в одном файле не осталось маркеров конфликта
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  colors:
+    name: Цвета
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: HEX-цвета в CSS
+        run: |
+          if grep -nE '#[0-9a-fA-F]{3,8}\b' $(git ls-files '*.css'); then
+            echo "::error::Найден HEX-цвет. Используй переменную: var(--bg-accent-main)"
+            exit 1
+          fi
+          echo "HEX-цветов нет"
+
+  conflicts:
+    name: Конфликты
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Маркеры конфликта
+        run: |
+          if git grep -nE '^(<<<<<<<|>>>>>>>|=======$)' -- . ':!.github'; then
+            echo "::error::Остались маркеры конфликта — реши конфликт и удали строки <<<<<<<, =======, >>>>>>>"
+            exit 1
+          fi
+          echo "Маркеров конфликта нет"
